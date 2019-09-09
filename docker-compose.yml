@@ -4,6 +4,8 @@ services:
   frontend:
     build: .
     restart: unless-stopped
+    volumes:
+      - ./docker:/etc/nginx/conf.d
     ports:
       - 80:80
       - 443:443
