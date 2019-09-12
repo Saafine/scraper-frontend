@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { switchMap } from 'rxjs/operators';
 import { timer } from 'rxjs';
 
-const API = 'http://localhost:3000/';
+const API = 'https://scrapulec.eu:3000/';
 const API_MARK_AS_SEEN = API + 'mark';
 const API_NEW_ESTATE_SCRAPE = API + 'new';
 const DELAY = 60000 * 10;
