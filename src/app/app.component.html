@@ -12,4 +12,38 @@
 
 <!--</div>-->
 
-<button type="button" (click)="test()">test</button>
+
+<form [formGroup]="queryGumtree">
+  <label>
+    URL to srape:
+    <input formControlName="url" />
+  </label>
+  <div formArrayName="items">
+    <div *ngFor="let item of items.controls; index as i" style="margin: 5px;">
+      <label>
+        Label:
+        <input [formControl]="item.get('label')">
+      </label>
+      <label>
+        Selector:
+        <input [formControl]="item.get('selector')">
+      </label>
+      <label>
+        Read Method:
+        <input [formControl]="item.get('readMethod')">
+      </label>
+    </div>
+  </div>
+</form>
+
+<ng-container *ngIf="extractedItems && extractedItems.length === 2">
+  <div *ngFor="let values of extractedItems[1];" style="border: 2px solid black; margin: 5px;">
+    <div style="margin: 5px; overflow: auto;" *ngFor="let value of values; let i = index">
+      <div style="font-weight: bold;">{{ extractedItems[0][i] }}</div>
+      <div >{{ value }}</div>
+    </div>
+    <button style="width: 100%;" (click)="markAsSeen(values)">Mark as Check</button>
+  </div>
+</ng-container>
+
+<button (click)="start()">Start</button>
