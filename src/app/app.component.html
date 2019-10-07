@@ -1,49 +1,25 @@
-<!--List of new estates (Tries: {{ fetches }}, Found {{ estates.length }}):-->
-<!--<div *ngIf="loading">Loading...</div>-->
-<!--<div *ngFor="let estate of estates" style="border: 2px solid black; margin: 5px;">-->
-<!--  <div>{{ estate.title }}</div>-->
-<!--  <div>-->
-<!--    <a target="_blank" href="{{ estate.url }}">VIEW</a>-->
-<!--  </div>-->
-<!--  <button type="button" (click)="markAsSeen(estate)">Mark as Seen</button>-->
-<!--</div>-->
-<!--<div *ngFor="let item of extractedItems?[0]; let i = index">-->
-<!--  <div>{{ item.label }}</div>-->
+<div class="bold">Number of tries: {{ fetches }}</div>
+<app-search-configuration></app-search-configuration>
 
-<!--</div>-->
+<button class="max-width" (click)="start()">Start</button>
 
+<!-- TODO [P. Labus] notifications -->
+<div *ngIf="error">{{ error }}</div>
+<div class="bold" *ngIf="loading">Loading...</div>
 
-<form [formGroup]="queryGumtree">
-  <label>
-    URL to srape:
-    <input formControlName="url" />
-  </label>
-  <div formArrayName="items">
-    <div *ngFor="let item of items.controls; index as i" style="margin: 5px;">
-      <label>
-        Label:
-        <input [formControl]="item.get('label')">
-      </label>
-      <label>
-        Selector:
-        <input [formControl]="item.get('selector')">
-      </label>
-      <label>
-        Read Method:
-        <input [formControl]="item.get('readMethod')">
-      </label>
+<ng-container *ngIf="!loading">
+  <div *ngFor="let item of values" class="m-1 bordered">
+    <div *ngFor="let value of item; let i = index">
+      <label class="bold">{{ labels[i] }}</label>
+
+      <a *ngIf="labels[i] === 'urls'; else notURL" target="_blank" [href]="value">
+        {{ value }}
+      </a>
+
+      <ng-template #notURL>
+        {{ value }}
+      </ng-template>
     </div>
-  </div>
-</form>
-
-<ng-container *ngIf="extractedItems && extractedItems.length === 2">
-  <div *ngFor="let values of extractedItems[1];" style="border: 2px solid black; margin: 5px;">
-    <div style="margin: 5px; overflow: auto;" *ngFor="let value of values; let i = index">
-      <div style="font-weight: bold;">{{ extractedItems[0][i] }}</div>
-      <div >{{ value }}</div>
-    </div>
-    <button style="width: 100%;" (click)="markAsSeen(values)">Mark as Check</button>
+    <button class="max-width" (click)="markAsSeen(item)">Mark as Seen</button>
   </div>
 </ng-container>
-
-<button (click)="start()">Start</button>

@@ -1,0 +1,22 @@
+.bold {
+  font-weight: bold;
+}
+
+label {
+  display: block;
+  margin: 2px;
+  span {
+    display: inline-block;
+    min-width: 100px;
+  }
+}
+
+input {
+  min-width: 300px;
+}
+
+.items {
+  &__index {
+    color: #134b80;
+  }
+}

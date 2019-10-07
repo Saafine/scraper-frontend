@@ -1,115 +1,94 @@
-import { Component } from '@angular/core';
+/* tslint:disable:curly */
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { FormArray, FormControl, FormGroup } from '@angular/forms';
+import { SearchConfigurationComponent } from './search-configuration/search-configuration.component';
+import { QueryConfigurationLabel, QueryConfigurationValue, QuerySearchIgnoreDTO, QuerySearchResponse, SearchQueryDTO } from './app.model';
+import { finalize, switchMap } from 'rxjs/operators';
+import { NotificationService } from './services/notification.service';
+import { Subscription, timer } from 'rxjs';
 
 const API_WATCHER = 'http://localhost:3000/watch';
 const API_WATCHER_IGNORE = 'http://localhost:3000/watch/ignore';
 const DELAY = 60000 * 10;
 
-interface WatchItem {
-  label: string;
-  selector: string;
-  readMethod: string;
-  useAsUniqueId?: boolean;
-}
-
-interface WatchDTO {
-  url: string;
-  items: WatchItem[];
-}
-
-type ExtractedItems = [string[], string[][]];
-
-// TODO [P. Labus] merge repos backend + frontend
-// TODO [P. Labus] implement openapi ?
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css']
+  styleUrls: ['./app.component.scss']
 })
-export class AppComponent {
-  // extractedItems: ExtractedItems = [
-  //   //   [
-  //   //     'titles',
-  //   //     'urls'
-  //   //   ],
-  //   //   [
-  //   //     [
-  //   //       'Mieszkanie 50 m2 3 pokoje 600 m do metra Okazja',
-  //   //       '/a-mieszkania-i-domy-sprzedam-i-kupie/targowek/mieszkanie-50-m2-3-pokoje-600-m-do-metra-okazja/1005993454380912460520009'
-  //   //     ],
-  //   //     [
-  //   //       'Piękne 3 pokoje na Mokotówie. Bezpośrednio!',
-  //   //       '/a-mieszkania-i-domy-sprzedam-i-kupie/srodmiescie/piekne-3-pokoje-na-mokotowie-bezposrednio/1005993776150910488646309'
-  //   //     ]
-  //   //   ]
-  //   // ];
-  extractedItems: ExtractedItems;
-  queryGumtree: FormGroup = new FormGroup({
-    url: new FormControl(
-      'https://www.gumtree.pl/s-mieszkania-i-domy-sprzedam-i-kupie/warszawa/mieszkanie/v1c9073l3200008a1dwp1?pr=,550000&df=ownr'),
-    items: new FormArray([
-      new FormGroup({
-        label: new FormControl('titles'),
-        selector: new FormControl('.view .tile-title-text'),
-        readMethod: new FormControl('textContent'),
-      }),
-      new FormGroup({
-        label: new FormControl('urls'),
-        selector: new FormControl('.view .tile-title-text'),
-        readMethod: new FormControl('href'),
-      })
-    ])
-  });
-
-  get items(): FormArray {
-    return this.queryGumtree.get('items') as FormArray;
-  }
-
-  // private payload: WatchDTO = {
-  //   url: 'https://www.gumtree.pl/s-mieszkania-i-domy-sprzedam-i-kupie/warszawa/mieszkanie/v1c9073l3200008a1dwp1?pr=,550000&df=ownr',
-  //   items: [
-  //     {
-  //       label: 'titles',
-  //       selector: '.view .tile-title-text',
-  //       readMethod: 'textContent'
-  //     },
-  //     {
-  //       label: 'urls',
-  //       selector: '.view .tile-title-text',
-  //       readMethod: 'href'
-  //     }
-  //   ]
-  // };
-
+export class AppComponent implements OnInit, OnDestroy {
+  @ViewChild(SearchConfigurationComponent, { static: true }) private searchConfigurationRef;
   loading = false;
   fetches = 0;
 
-  constructor(private httpClient: HttpClient) {
+  labels: QueryConfigurationLabel[];
+  values: QueryConfigurationValue[];
+  queryHash: string;
+  error: string;
+  private sub: Subscription = new Subscription();
+
+  // TODO [P. Labus] split to service?
+  constructor(private httpClient: HttpClient, private notificationService: NotificationService) {
   }
 
-  private getQueryFromForm(): WatchDTO {
-    const itemsFormArray = this.queryGumtree.get('items') as FormArray;
-    const itemGetter = (form: FormGroup) => ({
-      label: form.get('label').value,
-      selector: form.get('selector').value,
-      readMethod: form.get('readMethod').value
-    });
-    const items = itemsFormArray.controls.map(itemGetter);
-    return {
-      url: this.queryGumtree.get('url').value,
-      items
-    };
+  ngOnInit(): void {
+    this.notificationService.askPermission();
   }
 
   start() {
-    this.httpClient.post(API_WATCHER, this.getQueryFromForm()).subscribe((response: ExtractedItems) => {
-      this.extractedItems = response;
+    this.initializeScraping();
+
+    this.sub = timer(0, DELAY).pipe(switchMap(() => {
+      return this.httpClient.post(API_WATCHER, this.getSearchQueryConfiguration());
+    }), finalize(() => {
+      this.loading = false;
+    })).subscribe((response: QuerySearchResponse) => {
+      if (!this.isSearchResponseValid(response)) {
+        this.setError('Invalid response');
+        return;
+      }
+      this.queryHash = response.queryHash;
+      this.values = response.data.values;
+      this.labels = response.data.labels;
     });
   }
 
-  markAsSeen(values: string[]): void {
-    // TODO [P. Labus] type
-    this.httpClient.post(API_WATCHER_IGNORE, { ignoreValues: values, query: this.payload }).subscribe();
+  markAsSeen(values: QueryConfigurationValue): void {
+    const queryHash = this.getQueryHash();
+    const payload: QuerySearchIgnoreDTO = { queryHash, values };
+    this.httpClient.post(API_WATCHER_IGNORE, payload).subscribe();
+  }
+
+  ngOnDestroy(): void {
+    this.sub.unsubscribe();
+  }
+
+  private getQueryHash(): string {
+    return this.queryHash;
+  }
+
+  private getSearchQueryConfiguration(): SearchQueryDTO {
+    return this.searchConfigurationRef.getSearchQuery();
+  }
+
+  private setError(msg: string): void {
+    this.error = msg;
+  }
+
+  private clearError(): void {
+    this.error = null;
+  }
+
+  private initializeScraping(): void {
+    this.clearError();
+    this.fetches++;
+    this.loading = true;
+  }
+
+  private isSearchResponseValid(response: QuerySearchResponse): boolean {
+    const hasResponse = Boolean(response);
+    const hasValues = Boolean(response && response.data && response.data.values);
+    const hasLabels = Boolean(response && response.data && response.data.labels);
+    return hasResponse && hasValues && hasLabels;
   }
 }
