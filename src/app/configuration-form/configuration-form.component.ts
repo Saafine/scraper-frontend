@@ -1,6 +1,6 @@
 /* tslint:disable:variable-name */
-import { Component, Input } from '@angular/core';
-import { QueryConfiguration, SearchItemDTO } from '../../app.model';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { QueryConfiguration, SearchItemDTO } from '../app.model';
 import { FormArray, FormControl, FormGroup } from '@angular/forms';
 
 const CONTROLS_CONFIGURATION = {
@@ -18,7 +18,7 @@ const CONTROLS_CONFIGURATION = {
   styleUrls: ['./configuration-form.component.scss'],
 })
 export class ConfigurationFormComponent {
-  control = CONTROLS_CONFIGURATION;
+  @Output() startScraping: EventEmitter<number> = new EventEmitter<number>();
 
   @Input()
   set configuration(value: QueryConfiguration) {
@@ -26,6 +26,7 @@ export class ConfigurationFormComponent {
     this.setFormFromConfiguration(value);
   }
 
+  control = CONTROLS_CONFIGURATION;
   private _configuration: QueryConfiguration;
 
   form: FormGroup = new FormGroup({
@@ -35,9 +36,15 @@ export class ConfigurationFormComponent {
   });
 
   show = false;
+  inProgress = false;
 
   toggle(): void {
     this.show = !this.show;
+  }
+
+  start(): void {
+    this.inProgress = true;
+    this.startScraping.emit();
   }
 
   private setFormFromConfiguration(configuration: QueryConfiguration): void {

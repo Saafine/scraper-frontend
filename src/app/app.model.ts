@@ -28,3 +28,9 @@ export interface QuerySearchIgnoreDTO {
   queryHash: string;
   values: any[];
 }
+
+export interface ResultView {
+  labels: QueryConfigurationLabel[];
+  values: QueryConfigurationValue[];
+  queryHash: string;
+}

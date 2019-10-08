@@ -1,25 +1,18 @@
 <div class="bold">Number of tries: {{ fetches }}</div>
-<app-search-configuration></app-search-configuration>
+<app-configuration-form
+  *ngFor="let config of configurations; let i = index;"
+  [configuration]="config"
+  (startScraping)="start(i)"
+>
+</app-configuration-form>
 
-<button class="max-width" (click)="start()">Start</button>
-
-<!-- TODO [P. Labus] notifications -->
-<div *ngIf="error">{{ error }}</div>
-<div class="bold" *ngIf="loading">Loading...</div>
-
+<div *ngIf="loading">Loading...</div>
 <ng-container *ngIf="!loading">
-  <div *ngFor="let item of values" class="m-1 bordered">
-    <div *ngFor="let value of item; let i = index">
-      <label class="bold">{{ labels[i] }}</label>
-
-      <a *ngIf="labels[i] === 'urls'; else notURL" target="_blank" [href]="value">
-        {{ value }}
-      </a>
-
-      <ng-template #notURL>
-        {{ value }}
-      </ng-template>
-    </div>
-    <button class="max-width" (click)="markAsSeen(item)">Mark as Seen</button>
-  </div>
+  <app-result-viewer
+    *ngFor="let result of results"
+    [labels]="result.labels"
+    [values]="result.values"
+    [queryHash]="result.queryHash"
+    (markAsSeen)="markAsSeen($event)"
+  ></app-result-viewer>
 </ng-container>

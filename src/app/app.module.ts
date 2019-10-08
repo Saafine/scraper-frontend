@@ -4,7 +4,8 @@ import { NgModule } from '@angular/core';
 import { AppComponent } from './app.component';
 import { HttpClientModule } from '@angular/common/http';
 import { ReactiveFormsModule } from '@angular/forms';
-import { SearchConfigurationModule } from './search-configuration/search-configuration.module';
+import { ConfigurationFormModule } from './configuration-form/configuration-form.module';
+import { ResultViewerModule } from './result-viewer/result-viewer.module';
 
 @NgModule({
   declarations: [
@@ -14,7 +15,8 @@ import { SearchConfigurationModule } from './search-configuration/search-configu
     BrowserModule,
     HttpClientModule,
     ReactiveFormsModule,
-    SearchConfigurationModule
+    ConfigurationFormModule,
+    ResultViewerModule
   ],
   providers: [],
   bootstrap: [AppComponent]

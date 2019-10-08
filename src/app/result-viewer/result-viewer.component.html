@@ -1,0 +1,14 @@
+<div *ngFor="let item of values" class="m-1 bordered">
+  <div *ngFor="let value of item; let i = index">
+    <label class="bold">{{ labels[i] }}</label>
+
+    <a *ngIf="labels[i] === 'urls'; else notURL" target="_blank" [href]="value">
+      {{ value }}
+    </a>
+
+    <ng-template #notURL>
+      {{ value }}
+    </ng-template>
+  </div>
+  <button class="max-width" (click)="handleMarkAsSeen(item)">Mark as Seen</button>
+</div>

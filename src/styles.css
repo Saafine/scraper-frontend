@@ -1,1 +1,19 @@
-/* You can add global styles to this file, and also import other style files */
+.bold {
+  font-weight: bold;
+}
+
+.max-width {
+  width: 100%;
+}
+
+.bordered {
+  border: 2px solid black;
+}
+
+.m-1 {
+  margin: 5px;
+}
+
+button {
+  min-width: 140px;
+}

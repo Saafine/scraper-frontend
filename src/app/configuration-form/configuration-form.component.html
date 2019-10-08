@@ -1,5 +1,6 @@
 <form [formGroup]="form">
-  <button (click)="toggle()">{{ show ? 'Hide' : 'Show' }}</button>
+  <button (click)="toggle()">{{ show ? 'Hide' : 'Show ' + form.get(control.queryLabel).value }}</button>
+  <button (click)="start()">{{ inProgress ? 'In progress' : 'Start'}}</button>
   <ng-container *ngIf="show">
     <label>
       <span>Label</span>
