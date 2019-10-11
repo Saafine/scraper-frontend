@@ -19,7 +19,7 @@ export class AppComponent implements OnInit, OnDestroy {
   configurations: QueryConfiguration[] = [
     {
       label: 'Otodom',
-      url: `https://www.otodom.pl/sprzedaz/mieszkanie/?search%5Bfilter_float_price%3Ato%5D=550000&search%5Bdescription
+      url: `https://www.otodom.pl/sprzedaz/mieszkanie/?search%5Bfilter_float_price%3Ato%5D=450000&search%5Bdescription
       %5D=1&search%5Bprivate_business%5D=private&search%5Border%5D=created_at_first%3Adesc&locations%5B0%5D%5Bregion_id%5D=7&location
       s%5B0%5D%5Bsubregion_id%5D=197&locations%5B0%5D%5Bcity_id%5D=26&locations%5B0%5D%5Bdistrict_id%5D=728&locations%5B0%5D%5Blocati
       on_id%5D=7&locations%5B1%5D%5Bregion_id%5D=7&locations%5B1%5D%5Bsubregion_id%5D=197&locations%5B1%5D%5Bcity_id%5D=26&locations%
@@ -50,7 +50,7 @@ export class AppComponent implements OnInit, OnDestroy {
     {
       label: 'OLX',
       url: `https://www.olx.pl/nieruchomosci/mieszkania/sprzedaz/warszawa
-      /?search%5Bfilter_float_price%3Ato%5D=550000&search%5Bprivate_business%5D=private`,
+      /?search%5Bfilter_float_price%3Ato%5D=450000&search%5Bprivate_business%5D=private`,
       items: [
         {
           label: 'titles',
@@ -66,7 +66,7 @@ export class AppComponent implements OnInit, OnDestroy {
     },
     {
       label: 'Gumtree',
-      url: 'https://www.gumtree.pl/s-mieszkania-i-domy-sprzedam-i-kupie/warszawa/mieszkanie/v1c9073l3200008a1dwp1?pr=,550000&df=ownr',
+      url: 'https://www.gumtree.pl/s-mieszkania-i-domy-sprzedam-i-kupie/warszawa/mieszkanie/v1c9073l3200008a1dwp1?pr=,450000&df=ownr',
       items: [
         {
           label: 'titles',
@@ -108,6 +108,9 @@ export class AppComponent implements OnInit, OnDestroy {
       };
       this.removeResultByHash(result.queryHash);
       this.results.push(result);
+      if (result.values.length) {
+        this.notificationService.show(`Found new estates: ${ result.values.length }`);
+      }
     });
   }
 
