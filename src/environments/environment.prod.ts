@@ -1,4 +1,4 @@
 export const environment = {
   production: false,
-  api: 'https://scrapulec:3000/'
+  api: 'https://scrapulec.eu:3000/'
 };
