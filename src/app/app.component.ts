@@ -5,9 +5,10 @@ import { QueryConfiguration, QuerySearchIgnoreDTO, QuerySearchResponse, ResultVi
 import { switchMap } from 'rxjs/operators';
 import { NotificationService } from './services/notification.service';
 import { Subscription, timer } from 'rxjs';
+import { environment } from '../environments/environment';
 
-export const API_WATCHER = 'http://localhost:3000/watch';
-export const API_WATCHER_IGNORE = 'http://localhost:3000/watch/ignore';
+export const API_WATCHER = `${environment.api}watch`;
+export const API_WATCHER_IGNORE = `${environment.api}watch/ignore`;
 const DELAY = 60000 * 10;
 
 // Array.from($('.single-result__content .single-result__title')).map((x) => x.textContent);
