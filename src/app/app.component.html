@@ -1,4 +1,4 @@
-<div class="bold">Number of tries: {{ fetches }}</div>
+<div class="bold">Number of scrapes: {{ fetches }}, errors: {{ errors }}</div>
 <app-configuration-form
   *ngFor="let config of configurations; let i = index;"
   [configuration]="config"
